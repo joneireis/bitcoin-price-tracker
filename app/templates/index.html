@@ -48,7 +48,7 @@
             }
         }
 
-        // Função para atualizar o transaction fee (a cada 10 segundos)
+        // Função para atualizar o transaction fee (a cada 30 segundos)
         async function updateTransactionFee() {
             try {
                 const feeResponse = await fetch('/get_transaction_fee');
