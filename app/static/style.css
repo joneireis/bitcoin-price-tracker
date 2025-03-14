@@ -21,6 +21,14 @@ body {
     overflow: hidden;
 }
 
+.fear-greed-index {
+    font-size: 1.2em;
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    z-index: 10;
+}
+
 .transaction-fee {
     color: #fff;
     font-size: 1em;
