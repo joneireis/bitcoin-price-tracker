@@ -1,36 +1,60 @@
+/* Variáveis Globais */
+:root {
+    --primary-color: #fff;
+    --font-size-large: 5em;
+    --fear-greed-color-extreme-fear: #ff0000;
+    --fear-greed-color-fear: #ff8000;
+    --fear-greed-color-greed: #00cc00;
+    --fear-greed-color-extreme-greed: #008000;
+    --title-color: #ffcc00;
+}
+
+/* Body */
 body {
     background-color: #000;
+    /* Garante que o fundo geral seja preto */
+    margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
     font-family: 'Orbitron', sans-serif;
 }
 
+/* Blockclock Layout */
 .blockclock {
     background-color: #000;
-    border: 5px solid #fff;
+    /* Fundo preto explícito */
+    border: 5px solid var(--primary-color);
     border-radius: 15px;
     padding: 20px;
-    width: 600px;
-    height: 300px;
+    width: 90vw;
+    max-width: 600px;
+    height: 50vh;
+    min-height: 300px;
     position: relative;
     text-align: center;
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
     overflow: hidden;
+    z-index: 1;
 }
 
+/* Fear and Greed Index */
 .fear-greed-index {
     font-size: 1.2em;
     position: absolute;
     top: 10px;
     left: 20px;
-    z-index: 10;
+    z-index: 20;
+    opacity: 1;
+}
+
+.fear-greed-index.loading {
+    animation: spin 1s linear infinite;
 }
 
 .transaction-fee {
-    color: #fff;
+    color: var(--primary-color);
     font-size: 1em;
     position: absolute;
     top: 10px;
@@ -38,8 +62,13 @@ body {
     z-index: 10;
 }
 
+.transaction-fee.loading {
+    animation: spin 1s linear infinite;
+}
+
+/* Currency Label */
 .currency-label {
-    color: #fff;
+    color: var(--primary-color);
     font-size: 1.5em;
     margin-bottom: 10px;
     text-transform: uppercase;
@@ -50,9 +79,10 @@ body {
     z-index: 10;
 }
 
+/* Price Display */
 .price-display {
-    color: #fff;
-    font-size: 5em;
+    color: var(--primary-color);
+    font-size: var(--font-size-large);
     font-weight: 700;
     letter-spacing: 5px;
     margin-bottom: 20px;
@@ -63,8 +93,9 @@ body {
     z-index: 10;
 }
 
+/* Title */
 .title {
-    color: #ffcc00;
+    color: var(--title-color);
     font-size: 2em;
     font-weight: 700;
     text-transform: uppercase;
@@ -76,8 +107,9 @@ body {
     z-index: 1;
 }
 
+/* Author */
 .author {
-    color: #fff;
+    color: var(--primary-color);
     font-size: 1em;
     position: absolute;
     bottom: 10px;
@@ -85,8 +117,9 @@ body {
     z-index: 10;
 }
 
+/* Price Variation */
 .price-variation {
-    color: #fff;
+    color: var(--primary-color);
     font-size: 1.2em;
     position: absolute;
     bottom: 10px;
@@ -94,9 +127,44 @@ body {
     z-index: 10;
 }
 
+.price-variation.loading {
+    animation: spin 1s linear infinite;
+}
+
+/* Chart */
 #price-chart {
     position: absolute;
     top: 0;
     left: 0;
     z-index: 0;
+}
+
+/* Animações */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Media Queries */
+@media (max-width: 600px) {
+    .price-display {
+        font-size: 3em;
+    }
+
+    .fear-greed-index {
+        font-size: 1em;
+    }
+
+    .transaction-fee {
+        font-size: 0.8em;
+    }
+
+    .price-variation {
+        font-size: 1em;
+    }
 }

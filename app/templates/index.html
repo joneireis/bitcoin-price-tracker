@@ -7,163 +7,22 @@
     <title>Bitcoin Price Tracker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
     <div class="blockclock">
-        <div class="fear-greed-index" id="fear-greed-index">Loading...</div>
-        <div class="transaction-fee" id="transaction-fee">Loading...</div>
+        <div class="fear-greed-index loading" id="fear-greed-index">Loading...</div>
+        <div class="transaction-fee loading" id="transaction-fee">Loading...</div>
         <div class="currency-label">BTC / USD $</div>
         <div class="price-display" id="price-display">{{ price }}</div>
         <div class="title">BITICA</div>
         <div class="author">Jonei</div>
-        <div class="price-variation" id="price-variation">Loading...</div>
-        <canvas id="price-chart" width="600" height="300"
-            style="position: absolute; top: 0; left: 0; opacity: 0.2; z-index: 0;"></canvas>
+        <div class="price-variation loading" id="price-variation">Loading...</div>
+        <canvas id="price-chart" style="position: absolute; top: 0; left: 0; opacity: 0.2; z-index: 0;"></canvas>
     </div>
-
-    <script>
-        // Função para atualizar o preço, gráfico, variação e índice de medo e ganância (a cada 120 segundos)
-        async function updatePriceAndChart() {
-            try {
-                // Atualizar preço
-                const priceResponse = await fetch('/get_price');
-                const priceData = await priceResponse.json();
-                console.log("Preço recebido:", priceData.price);
-                document.getElementById('price-display').textContent = priceData.price;
-
-                // Atualizar gráfico e variação
-                const chartResponse = await fetch('/get_price_history');
-                const chartData = await chartResponse.json();
-                console.log("Dados do gráfico recebidos:", chartData.prices);
-                if (chartData.prices && chartData.prices.length > 0) {
-                    updateChart(chartData.prices, priceData.price, chartData.prices[0]);
-                    updatePriceVariation(priceData.price, chartData.prices[0]);
-                } else {
-                    console.error("Nenhum dado de preços disponível para o gráfico!");
-                }
-
-                // Atualizar índice de medo e ganância
-                const fearGreedResponse = await fetch('https://api.alternative.me/fng/?limit=1');
-                const fearGreedData = await fearGreedResponse.json();
-                if (fearGreedData && fearGreedData.data && fearGreedData.data.length > 0) {
-                    const fearGreedIndex = parseInt(fearGreedData.data[0].value);
-                    document.getElementById('fear-greed-index').textContent = fearGreedIndex;
-
-                    // Definir a cor com base no valor
-                    let color;
-                    if (fearGreedIndex <= 25) {
-                        color = '#ff0000'; // Extreme Fear (vermelho escuro)
-                    } else if (fearGreedIndex <= 50) {
-                        color = '#ff8000'; // Fear (laranja)
-                    } else if (fearGreedIndex <= 75) {
-                        color = '#00cc00'; // Greed (verde claro)
-                    } else {
-                        color = '#008000'; // Extreme Greed (verde escuro)
-                    }
-                    document.getElementById('fear-greed-index').style.color = color;
-
-                    console.log("Índice de Medo e Ganância:", fearGreedIndex, "Cor:", color);
-                } else {
-                    console.error("Erro ao obter o índice de medo e ganância!");
-                    document.getElementById('fear-greed-index').textContent = 'Error';
-                }
-            } catch (error) {
-                console.error('Erro ao atualizar preço, gráfico ou índice:', error);
-                document.getElementById('price-display').textContent = 'Erro ao buscar o preço';
-            }
-        }
-
-        // Função para atualizar o transaction fee (a cada 10 segundos)
-        async function updateTransactionFee() {
-            try {
-                const feeResponse = await fetch('/get_transaction_fee');
-                const feeData = await feeResponse.json();
-                console.log("Transaction Fee Data:", feeData);
-                document.getElementById('transaction-fee').textContent = `${feeData.fee} sat/vB`;
-            } catch (error) {
-                console.error('Erro ao atualizar o transaction fee:', error);
-                document.getElementById('transaction-fee').textContent = 'Erro';
-            }
-        }
-
-        // Função para calcular e atualizar a variação percentual
-        function updatePriceVariation(currentPrice, price24hAgo) {
-            const variation = ((currentPrice - price24hAgo) / price24hAgo) * 100;
-            const variationText = (variation >= 0 ? '+' : '') + variation.toFixed(2) + '%';
-            document.getElementById('price-variation').textContent = variationText;
-            console.log("Variação percentual:", variationText);
-        }
-
-        // Função para atualizar o gráfico
-        let chart = null;
-        function updateChart(prices, currentPrice, price24hAgo) {
-            console.log("Iniciando renderização do gráfico com", prices.length, "pontos:", prices);
-            const canvas = document.getElementById('price-chart');
-            if (!canvas) {
-                console.error("Canvas não encontrado!");
-                return;
-            }
-            console.log("Canvas encontrado, largura:", canvas.width, "altura:", canvas.height);
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-                console.error("Contexto do canvas não encontrado!");
-                return;
-            }
-            if (chart) {
-                console.log("Destruindo gráfico anterior...");
-                chart.destroy();
-            }
-            try {
-                // Calcular variação para definir a cor
-                const variation = ((currentPrice - price24hAgo) / price24hAgo) * 100;
-                const borderColor = variation > 0 ? 'rgba(0, 255, 0, 1)' : 'rgba(255, 0, 0, 1)';
-
-                chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: prices.map((_, i) => i),
-                        datasets: [{
-                            label: 'Bitcoin Price (24h)',
-                            data: prices,
-                            borderColor: borderColor,
-                            borderWidth: 2,
-                            pointRadius: 0,
-                            fill: false
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            x: { display: false },
-                            y: {
-                                display: false,
-                                suggestedMin: Math.min(...prices),
-                                suggestedMax: Math.max(...prices)
-                            }
-                        },
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
-                });
-                console.log("Gráfico criado com sucesso, cor:", borderColor);
-            } catch (chartError) {
-                console.error("Erro ao criar o gráfico:", chartError);
-            }
-        }
-
-        // Atualiza o preço, gráfico, variação e índice a cada 120 segundos
-        setInterval(updatePriceAndChart, 120000);
-        // Atualiza o transaction fee a cada 10 segundos
-        setInterval(updateTransactionFee, 10000);
-
-        // Chama as funções imediatamente para evitar esperar o primeiro intervalo
-        updatePriceAndChart();
-        updateTransactionFee();
-    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 
 </html>
