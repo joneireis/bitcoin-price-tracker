@@ -7,12 +7,13 @@
     --fear-greed-color-greed: #00cc00;
     --fear-greed-color-extreme-greed: #008000;
     --title-color: #ffcc00;
+    --tooltip-bg: rgba(0, 0, 0, 0.9);
+    --tooltip-text: #fff;
 }
 
 /* Body */
 body {
     background-color: #000;
-    /* Garante que o fundo geral seja preto */
     margin: 0;
     display: flex;
     justify-content: center;
@@ -24,7 +25,6 @@ body {
 /* Blockclock Layout */
 .blockclock {
     background-color: #000;
-    /* Fundo preto explícito */
     border: 5px solid var(--primary-color);
     border-radius: 15px;
     padding: 20px;
@@ -37,6 +37,66 @@ body {
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
     overflow: hidden;
     z-index: 1;
+}
+
+/* Estilo geral para elementos com tooltip */
+.fear-greed-index,
+.transaction-fee,
+.btc-dominance,
+.price-variation {
+    position: relative;
+    cursor: help;
+    /* Cursor de ajuda ao passar o mouse */
+}
+
+/* Tooltip personalizado */
+.fear-greed-index:hover::after,
+.transaction-fee:hover::after,
+.btc-dominance:hover::after,
+.price-variation:hover::after {
+    content: attr(title);
+    position: absolute;
+    background-color: var(--tooltip-bg);
+    color: var(--tooltip-text);
+    font-size: 0.8em;
+    padding: 5px 10px;
+    border-radius: 5px;
+    white-space: nowrap;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.fear-greed-index:hover::after {
+    bottom: 100%;
+    left: 0;
+    margin-bottom: 5px;
+}
+
+.transaction-fee:hover::after {
+    bottom: 100%;
+    right: 0;
+    margin-bottom: 5px;
+}
+
+.btc-dominance:hover::after {
+    top: 100%;
+    left: 0;
+    margin-top: 5px;
+}
+
+.price-variation:hover::after {
+    top: 100%;
+    right: 0;
+    margin-top: 5px;
+}
+
+/* Mostrar tooltip ao passar o mouse */
+.fear-greed-index:hover::after,
+.transaction-fee:hover::after,
+.btc-dominance:hover::after,
+.price-variation:hover::after {
+    opacity: 1;
 }
 
 /* Fear and Greed Index */
@@ -53,6 +113,21 @@ body {
     animation: spin 1s linear infinite;
 }
 
+/* BTC Dominance */
+.btc-dominance {
+    color: var(--primary-color);
+    font-size: 1em;
+    position: absolute;
+    bottom: 10px;
+    left: 20px;
+    z-index: 10;
+}
+
+.btc-dominance.loading {
+    animation: spin 1s linear infinite;
+}
+
+/* Transaction Fee */
 .transaction-fee {
     color: var(--primary-color);
     font-size: 1em;
@@ -107,16 +182,6 @@ body {
     z-index: 1;
 }
 
-/* Author */
-.author {
-    color: var(--primary-color);
-    font-size: 1em;
-    position: absolute;
-    bottom: 10px;
-    left: 20px;
-    z-index: 10;
-}
-
 /* Price Variation */
 .price-variation {
     color: var(--primary-color);
@@ -166,5 +231,9 @@ body {
 
     .price-variation {
         font-size: 1em;
+    }
+
+    .btc-dominance {
+        font-size: 0.9em;
     }
 }
