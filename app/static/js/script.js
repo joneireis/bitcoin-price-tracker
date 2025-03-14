@@ -8,7 +8,8 @@
             priceDisplay: document.getElementById('price-display'),
             fearGreedIndex: document.getElementById('fear-greed-index'),
             transactionFee: document.getElementById('transaction-fee'),
-            priceVariation: document.getElementById('price-variation')
+            priceVariation: document.getElementById('price-variation'),
+            btcDominance: document.getElementById('btc-dominance')
         };
 
         // Adicionar classe de loading
@@ -33,27 +34,47 @@
             }
 
             // Atualizar índice de medo e ganância
-            const fearGreedResponse = await fetch('https://api.alternative.me/fng/?limit=1');
-            const fearGreedData = await fearGreedResponse.json();
-            if (fearGreedData && fearGreedData.data && fearGreedData.data.length > 0) {
-                const fearGreedIndex = parseInt(fearGreedData.data[0].value);
-                elements.fearGreedIndex.textContent = fearGreedIndex;
-
-                // Definir a cor com base no valor
-                let color;
-                if (fearGreedIndex <= 25) color = '#ff0000';
-                else if (fearGreedIndex <= 50) color = '#ff8000';
-                else if (fearGreedIndex <= 75) color = '#00cc00';
-                else color = '#008000';
-                elements.fearGreedIndex.style.color = color;
-
-                console.log('Índice de Medo e Ganância:', fearGreedIndex, 'Cor:', color);
-            } else {
-                console.error('Erro ao obter o índice de medo e ganância!');
+            try {
+                const fearGreedResponse = await fetch('https://api.alternative.me/fng/?limit=1');
+                if (!fearGreedResponse.ok) {
+                    throw new Error(`Erro na API Fear and Greed: ${fearGreedResponse.status}`);
+                }
+                const fearGreedData = await fearGreedResponse.json();
+                if (fearGreedData && fearGreedData.data && fearGreedData.data.length > 0) {
+                    const fearGreedIndex = parseInt(fearGreedData.data[0].value);
+                    elements.fearGreedIndex.textContent = fearGreedIndex;
+                    let color;
+                    if (fearGreedIndex <= 25) color = '#ff0000';
+                    else if (fearGreedIndex <= 50) color = '#ff8000';
+                    else if (fearGreedIndex <= 75) color = '#00cc00';
+                    else color = '#008000';
+                    elements.fearGreedIndex.style.color = color;
+                    console.log('Índice de Medo e Ganância:', fearGreedIndex, 'Cor:', color);
+                } else {
+                    console.error('Dados do Fear and Greed Index inválidos:', fearGreedData);
+                    elements.fearGreedIndex.textContent = 'Error';
+                }
+            } catch (apiError) {
+                console.error('Erro ao buscar Fear and Greed Index:', apiError);
                 elements.fearGreedIndex.textContent = 'Error';
             }
+
+            // Atualizar dominância do Bitcoin
+            try {
+                const dominanceResponse = await fetch('https://api.coingecko.com/api/v3/global');
+                if (!dominanceResponse.ok) {
+                    throw new Error(`Erro na API CoinGecko: ${dominanceResponse.status}`);
+                }
+                const dominanceData = await dominanceResponse.json();
+                const btcDominance = dominanceData.data.market_cap_percentage.btc.toFixed(2);
+                elements.btcDominance.textContent = `${btcDominance}%`;
+                console.log('Dominância do Bitcoin:', btcDominance);
+            } catch (apiError) {
+                console.error('Erro ao buscar dominância do Bitcoin:', apiError);
+                elements.btcDominance.textContent = 'Error';
+            }
         } catch (error) {
-            console.error('Erro ao atualizar preço, gráfico ou índice:', error);
+            console.error('Erro ao atualizar preço, gráfico ou índices:', error);
             elements.priceDisplay.textContent = 'Erro';
         } finally {
             // Remover classe de loading após todas as operações
@@ -142,8 +163,8 @@
     }
 
     // Inicialização e Intervalos
-    setInterval(updatePriceAndChart, 120000);
-    setInterval(updateTransactionFee, 10000);
+    setInterval(updatePriceAndChart, 120000); // Atualiza a cada 2 minutos
+    setInterval(updateTransactionFee, 10000); // Atualiza a cada 10 segundos
     updatePriceAndChart();
     updateTransactionFee();
 })();
