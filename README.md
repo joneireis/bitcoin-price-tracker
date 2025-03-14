@@ -2,6 +2,8 @@
 
 A simple Flask application to track the current price of Bitcoin using the CoinGecko API. The price is displayed on a web page and can be accessed via a browser.
 
+![foto](image.png)
+
 ## Requirements
 - Python 3.6+
 - Flask
